@@ -1,0 +1,30 @@
+services:
+  quotes-db:
+    image: registry.redhat.io/rhel9/postgresql-13:latest
+    container_name: quotes-db
+    ports:
+      - 5432:5432
+    env_file:
+      - ./quote-db.env
+    volumes:
+      - ./sql:/opt/app-root/src/postgresql-start:Z
+      - quotes-vol:/var/lib/pgsql/data
+  quotes-api:
+    image: localhost/podman-quotes-api:v1
+    container_name: quotes-api
+    depends_on:
+      - quotes-db
+    env_file:
+      - ./quote-api.env
+  quotes-ui:
+    image: localhost/podman-quotes-ui:v1
+    container_name: quotes-ui
+    depends_on:
+      - quotes-db 
+      - quotes-api
+    environment:
+      REACT_APP_SERVICE_API: quotes-api
+    ports:
+      - 8080:8080
+volumes:
+  quotes-vol: {}
