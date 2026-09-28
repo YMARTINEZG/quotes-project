@@ -10,14 +10,14 @@ services:
       - ./sql:/opt/app-root/src/postgresql-start:Z
       - quotes-vol:/var/lib/pgsql/data
   quotes-api:
-    image: localhost/podman-quotes-api:v1
+    image: localhost/podman-quotes-api:v2
     container_name: quotes-api
     depends_on:
       - quotes-db
     env_file:
       - ./quote-api.env
   quotes-ui:
-    image: localhost/podman-quotes-ui:v1
+    image: localhost/podman-quotes-ui:v2
     container_name: quotes-ui
     depends_on:
       - quotes-db 

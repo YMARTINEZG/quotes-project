@@ -1,0 +1,23 @@
+#TEST stage
+FROM maven:3.8-openjdk-17 as development
+WORKDIR /app
+COPY pom.xml ./
+COPY src ./src
+RUN mvn clean test
+#BUILD stage
+FROM maven:3.8-openjdk-17 as builder
+WORKDIR /app
+COPY pom.xml ./
+RUN mvn dependency:go-offline
+COPY /src ./src
+RUN mvn clean package -DskipTests
+#DEPLOY stage
+FROM openjdk:17.0.1-jdk-slim as production
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
+ENV DB_USERNAME=dummy
+ENV DB_PASSWORD=dummy123
+ENV DB_DATABASE=PRACTICAL
+ENV DB_HOST=quote-db
+#ENV EXTERNAL_SVC=localhost
+ENTRYPOINT ["java", "-jar", "app.jar"]
