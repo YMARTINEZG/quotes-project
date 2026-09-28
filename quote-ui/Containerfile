@@ -1,0 +1,13 @@
+FROM registry.redhat.io/ubi9/nodejs-22:1 AS builder
+USER root
+COPY . .
+ARG QUOTES_API_VERSION
+ENV REACT_APP_SERVICE_API=quotes-api
+ENV REACT_APP_VERSION_API=$QUOTES_API_VERSION
+RUN npm install && npm run build
+FROM registry.redhat.io/ubi8/nginx-118:1
+COPY nginx.conf /etc/nginx/
+COPY --from=builder /opt/app-root/src/build /usr/share/nginx/html
+EXPOSE 8080
+USER 1001
+CMD nginx -g "daemon off;"
